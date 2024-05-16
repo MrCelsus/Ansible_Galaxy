@@ -1,0 +1,52 @@
+- name: Installer les dépendances
+  ansible.builtin.yum:
+    name: 
+      - epel-release
+      - php
+      - php-mysql
+      - httpd
+    state: present
+  become: true
+
+- name: Démarrer et activer Apache
+  ansible.builtin.service:
+    name: httpd
+    state: started
+    enabled: true
+  become: true
+
+- name: Télécharger PHPMyAdmin
+  ansible.builtin.get_url:
+    url: https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.tar.gz
+    dest: /tmp/phpmyadmin.tar.gz
+  become: true
+
+- name: Extraire PHPMyAdmin
+  ansible.builtin.unarchive:
+    src: /tmp/phpmyadmin.tar.gz
+    dest: /usr/share
+    remote_src: true
+  become: true
+
+- name: Renommer le répertoire de PHPMyAdmin
+  ansible.builtin.command:
+    cmd: mv /usr/share/phpMyAdmin-* /usr/share/phpmyadmin
+  become: true
+
+- name: Configurer PHPMyAdmin
+  ansible.builtin.template:
+    src: templates/config.inc.php.j2
+    dest: /usr/share/phpmyadmin/config.inc.php
+  become: true
+
+- name: Configurer Apache pour PHPMyAdmin
+  ansible.builtin.copy:
+    src: files/phpmyadmin.conf
+    dest: /etc/httpd/conf.d/phpmyadmin.conf
+  become: true
+
+- name: Redémarrer Apache
+  ansible.builtin.service:
+    name: httpd
+    state: restarted
+  become: true

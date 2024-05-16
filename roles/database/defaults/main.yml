@@ -1,0 +1,4 @@
+mariadb_root_password: "rootpassword"
+mariadb_database_name: "testdb"
+mariadb_user_name: "testuser"
+mariadb_user_password: "testpassword"
